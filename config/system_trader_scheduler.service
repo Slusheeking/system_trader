@@ -1,0 +1,38 @@
+[Unit]
+Description=System Trader Scheduler Service
+Documentation=file:/home/ubuntu/system_trader/docs/SERVICE_SETUP.md
+After=network.target postgresql.service redis-server.service
+Wants=postgresql.service redis-server.service
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/system_trader
+ExecStart=/usr/bin/python3 /home/ubuntu/system_trader/run.py scheduler --config /home/ubuntu/system_trader/config/scheduler.yaml
+Restart=always
+RestartSec=30
+# Restart service after 10 seconds if service crashes
+StartLimitInterval=60
+StartLimitBurst=3
+# Don't restart more than 3 times in 60 seconds
+
+# Environment setup
+Environment=PYTHONUNBUFFERED=1
+Environment=CONFIG_PATH=/home/ubuntu/system_trader/config/scheduler.yaml
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+
+# Security settings
+PrivateTmp=true
+ProtectSystem=full
+NoNewPrivileges=true
+
+# Resource controls
+CPUQuota=80%
+MemoryLimit=1G
+
+[Install]
+WantedBy=multi-user.target

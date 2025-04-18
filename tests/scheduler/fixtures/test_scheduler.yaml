@@ -1,0 +1,56 @@
+# Test Scheduler Configuration
+
+worker_pool:
+  max_workers: 4
+
+scheduler:
+  check_interval: 10  # seconds
+
+tasks:
+  # Training task configuration
+  training_task:
+    frequency: 'daily'
+    time: '01:00'
+    
+  # Backtesting task configuration
+  backtesting_task:
+    backtesting:
+      schedule:
+        frequency: 'daily'
+        time: '02:00'
+      params:
+        lookback_days: 30
+        symbols: ['AAPL', 'MSFT', 'GOOGL']
+        strategies: ['momentum', 'mean_reversion']
+        
+  # Data collection task configuration
+  data_collection_task:
+    schedule:
+      frequency: 'hourly'
+      time: ':05'
+    params:
+      sources: ['alpaca', 'yahoo', 'polygon']
+      asset_types: ['stocks', 'etfs']
+      
+  # Market analysis task configuration
+  market_analysis_task:
+    schedule:
+      frequency: 'daily'
+      time: '05:30'
+    params:
+      regime_analysis: true
+      correlation_matrix: true
+      volatility_surface: true
+      
+  # Notification task configuration
+  notification_task:
+    schedule:
+      critical_alerts: true
+      status_notifications:
+        pre_market: true
+        market_hours: true
+        post_market: true
+      delivery_methods:
+        email: true
+        slack: true
+        dashboard: true

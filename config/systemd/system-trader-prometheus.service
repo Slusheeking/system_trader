@@ -1,0 +1,28 @@
+[Unit]
+Description=Prometheus Time Series Database
+Documentation=https://prometheus.io/docs/introduction/overview/
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+Type=simple
+ExecStart=/usr/local/bin/prometheus \
+    --config.file=/home/ubuntu/system_trader/config/prometheus/prometheus.yml \
+    --storage.tsdb.path=/home/ubuntu/system_trader/data/prometheus \
+    --storage.tsdb.retention.time=30d \
+    --web.console.templates=/usr/share/prometheus/consoles \
+    --web.console.libraries=/usr/share/prometheus/console_libraries \
+    --web.listen-address=0.0.0.0:9090 \
+    --web.external-url=http://localhost:9090
+
+# Store data in /home/ubuntu/system_trader/data/prometheus
+WorkingDirectory=/home/ubuntu/system_trader
+
+# Restart on failure but with exponential backoff
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

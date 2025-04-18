@@ -1,0 +1,24 @@
+# Grafana Provisioning Configuration
+
+# Datasources provisioning
+apiVersion: 1
+datasources:
+  # Path to the directory containing datasource configurations
+  path: /etc/grafana/provisioning/datasources
+  # Whether to delete datasources from the database that are not found in the provisioning files
+  deleteProvisionedDatasources: true
+
+# Dashboards provisioning
+dashboards:
+  - name: 'default'
+    org_id: 1
+    folder: ''
+    type: 'file'
+    # Path to the directory containing dashboard JSON files
+    path: /etc/grafana/provisioning/dashboards
+    # Whether to disable dashboard deletion
+    disableDeletion: false
+    # Whether to allow updating provisioned dashboards from the UI
+    editable: true
+    # How often Grafana will scan for changed dashboards
+    updateIntervalSeconds: 10

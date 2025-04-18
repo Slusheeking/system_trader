@@ -1,0 +1,170 @@
+# System Trader Training Configuration
+# This file configures the training pipeline for all models in the system
+
+# Global settings
+global:
+  # MLflow tracking configuration
+  mlflow:
+    tracking_uri: "sqlite:///mlflow.db"  # URI for MLflow tracking server
+    experiment_name: "system_trader"     # Default experiment name
+  
+  # Global data paths
+  data_paths:
+    base_dir: "/data/market_data"
+    stock_data: "/data/market_data/stocks"
+    options_data: "/data/market_data/options"
+    market_indices: "/data/market_data/indices"
+    economic_data: "/data/market_data/economic"
+  
+  # Training schedule settings
+  schedule:
+    frequency: "weekly"  # daily, weekly, monthly
+    day_of_week: "saturday"  # for weekly schedule
+    time: "01:00"  # 24-hour format, UTC
+  
+  # Common training parameters
+  training:
+    test_size: 0.2
+    cv_folds: 5
+    random_seed: 42
+    hyperparameter_tuning: true
+    save_checkpoints: true
+
+# Feature Store configuration
+feature_store:
+  connection_string: "postgresql+psycopg2://user:pass@host/db"
+  persistence: true
+
+# Explainability configuration
+explainability:
+  enable: true
+  shap:
+    enable: true
+    interaction: true
+    pdp: true
+  
+# AutoML configuration
+automl:
+  enable: true
+  classical:
+    library: "auto-sklearn"
+    time_limits: 3600
+  neural:
+    library: "keras-tuner"
+    max_trials: 20
+    executions_per_trial: 1
+  selection_methods: ["rfe", "l1", "boruta"]
+
+# Model-specific configurations
+models:
+  # Stock Selection Model
+  stock_selection:
+    enabled: true
+    model_dir: "models/stock_selection"
+    data_path: "${global.data_paths.stock_data}/daily_stocks.parquet"
+    hyperparameters:
+      prediction_horizon: 60  # minutes
+      profit_threshold: 0.005  # 0.5%
+      probability_threshold: 0.6
+      early_stopping_rounds: 50
+      optuna_trials: 100
+      optuna_timeout: 3600  # 1 hour
+    feature_config:
+      include_technical_indicators: true
+      include_fundamental_data: false
+      include_market_indicators: true
+      lookback_periods: [5, 10, 20, 60]
+    simulation:
+      position_size_pct: 0.1  # 10% of capital per trade
+      max_positions: 5
+      stop_loss_pct: 0.02  # 2%
+      take_profit_pct: 0.01  # 1%
+
+  # Market Regime Model
+  market_regime:
+    enabled: true
+    model_dir: "models/market_regime"
+    data_path: "${global.data_paths.market_indices}/spy_daily.parquet"
+    options_data_path: "${global.data_paths.options_data}/unusual_whales.parquet"
+    hyperparameters:
+      n_regimes: 4
+      hmm_n_iter: 100
+      smooth_window: 5
+      xgb_n_estimators: 100
+      xgb_learning_rate: 0.05
+      xgb_max_depth: 5
+    feature_config:
+      include_volatility_metrics: true
+      include_trend_metrics: true
+      include_breadth_indicators: true
+      include_options_flow: true
+      lookback_periods: [5, 10, 20, 60]
+
+  # Entry Timing Model
+  entry_timing:
+    enabled: true
+    model_dir: "models/entry_timing"
+    data_path: "${global.data_paths.stock_data}/intraday_stocks.parquet"
+    hyperparameters:
+      prediction_horizon: 15  # minutes
+      confidence_threshold: 0.7
+      early_stopping_rounds: 30
+      optuna_trials: 50
+    feature_config:
+      include_price_patterns: true
+      include_volume_analysis: true
+      include_order_flow: false
+      lookback_periods: [5, 15, 30, 60]
+
+  # Peak Detection Model
+  peak_detection:
+    enabled: true
+    model_dir: "models/peak_detection"
+    data_path: "${global.data_paths.stock_data}/intraday_stocks.parquet"
+    hyperparameters:
+      window_size: 20
+      sensitivity: 0.8
+      min_peak_distance: 10
+      early_stopping_rounds: 30
+      optuna_trials: 50
+    feature_config:
+      include_momentum_indicators: true
+      include_volatility_indicators: true
+      include_volume_indicators: true
+      lookback_periods: [5, 10, 20, 30]
+
+  # Risk Management Model
+  risk_management:
+    enabled: true
+    model_dir: "models/risk_management"
+    data_path: "${global.data_paths.stock_data}/daily_stocks.parquet"
+    market_data_path: "${global.data_paths.market_indices}/spy_daily.parquet"
+    hyperparameters:
+      risk_threshold: 0.02
+      max_drawdown: 0.05
+      confidence_level: 0.95
+      early_stopping_rounds: 30
+      optuna_trials: 50
+    feature_config:
+      include_volatility_metrics: true
+      include_correlation_metrics: true
+      include_tail_risk_metrics: true
+      lookback_periods: [5, 10, 20, 60]
+
+  # Portfolio Optimization Model
+  optimization:
+    enabled: false  # Disabled by default
+    model_dir: "models/optimization"
+    data_path: "${global.data_paths.stock_data}/daily_stocks.parquet"
+    market_data_path: "${global.data_paths.market_indices}/spy_daily.parquet"
+    economic_data_path: "${global.data_paths.economic_data}/indicators.parquet"
+    hyperparameters:
+      optimization_method: "efficient_frontier"  # efficient_frontier, risk_parity, black_litterman
+      risk_free_rate: 0.02
+      target_return: 0.15
+      max_position_size: 0.2
+      min_position_size: 0.01
+    constraints:
+      max_sector_allocation: 0.3
+      min_stocks: 10
+      max_stocks: 30

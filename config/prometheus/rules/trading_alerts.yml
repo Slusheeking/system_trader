@@ -1,0 +1,220 @@
+groups:
+  - name: trading_system_alerts
+    rules:
+    # System Resource Alerts
+    - alert: HighCpuUsage
+      expr: trading_system_system_cpu_usage_percent > 85
+      for: 5m
+      labels:
+        severity: warning
+        category: system
+      annotations:
+        summary: "High CPU usage detected"
+        description: "CPU usage is above 85% for more than 5 minutes: {{ $value }}%"
+
+    - alert: HighMemoryUsage
+      expr: trading_system_system_memory_used_percent > 90
+      for: 5m
+      labels:
+        severity: warning
+        category: system
+      annotations:
+        summary: "High memory usage detected"
+        description: "Memory usage is above 90% for more than 5 minutes: {{ $value }}%"
+
+    - alert: DiskSpaceLow
+      expr: trading_system_system_disk_used_percent{mountpoint="/"} > 85
+      for: 10m
+      labels:
+        severity: warning
+        category: system
+      annotations:
+        summary: "Low disk space detected"
+        description: "Disk usage for {{ $labels.mountpoint }} is above 85%: {{ $value }}%"
+
+    # Component Health Alerts
+    - alert: ComponentDown
+      expr: trading_system_trading_component_health == 0
+      for: 1m
+      labels:
+        severity: critical
+        category: component
+      annotations:
+        summary: "Component is down"
+        description: "Component {{ $labels.component }} is down"
+
+    - alert: ComponentDegraded
+      expr: trading_system_trading_component_health == 1
+      for: 5m
+      labels:
+        severity: warning
+        category: component
+      annotations:
+        summary: "Component is degraded"
+        description: "Component {{ $labels.component }} is operating in a degraded state for more than 5 minutes"
+
+    - alert: MissingHeartbeat
+      expr: trading_system_trading_component_last_heartbeat_seconds > 300
+      for: 1m
+      labels:
+        severity: critical
+        category: component
+      annotations:
+        summary: "Component heartbeat missing"
+        description: "Component {{ $labels.component }} hasn't sent a heartbeat in more than 5 minutes"
+
+    # Trading Operation Alerts
+    - alert: HighOrderRejectionRate
+      expr: sum(rate(trading_system_trading_orders_rejected_total[5m])) / sum(rate(trading_system_trading_orders_submitted_total[5m])) > 0.1
+      for: 5m
+      labels:
+        severity: warning
+        category: trading
+      annotations:
+        summary: "High order rejection rate"
+        description: "Order rejection rate is above 10% for more than 5 minutes"
+
+    - alert: HighExecutionLatency
+      expr: histogram_quantile(0.95, sum(rate(trading_system_trading_execution_latency_ms_bucket[5m])) by (le)) > 1000
+      for: 5m
+      labels:
+        severity: warning
+        category: trading
+      annotations:
+        summary: "High execution latency"
+        description: "95th percentile execution latency is above 1000ms for more than 5 minutes"
+
+    - alert: LargePortfolioDrawdown
+      expr: trading_system_trading_portfolio_drawdown < -0.05
+      for: 5m
+      labels:
+        severity: warning
+        category: trading
+      annotations:
+        summary: "Large portfolio drawdown"
+        description: "Portfolio is experiencing a drawdown of more than 5%: {{ $value | humanizePercentage }}"
+
+    - alert: ExcessiveDrawdown
+      expr: trading_system_trading_portfolio_drawdown < -0.1
+      for: 1m
+      labels:
+        severity: critical
+        category: trading
+      annotations:
+        summary: "Excessive portfolio drawdown"
+        description: "Portfolio is experiencing a severe drawdown of more than 10%: {{ $value | humanizePercentage }}"
+
+    # Model Performance Alerts
+    - alert: ModelPredictionErrors
+      expr: sum(rate(trading_system_model_stock_selection_prediction_errors_total[15m])) / sum(rate(trading_system_model_stock_selection_predictions_total[15m])) > 0.05
+      for: 15m
+      labels:
+        severity: warning
+        category: model
+      annotations:
+        summary: "High model prediction error rate"
+        description: "Stock selection model prediction error rate is above 5% for more than 15 minutes"
+
+    - alert: ModelDriftHigh
+      expr: trading_system_model_stock_selection_drift_score > 0.3
+      for: 30m
+      labels:
+        severity: warning
+        category: model
+      annotations:
+        summary: "High model drift detected"
+        description: "Stock selection model drift score is above 0.3 for more than 30 minutes: {{ $value }}"
+
+    - alert: HighModelLatency
+      expr: histogram_quantile(0.95, sum(rate(trading_system_model_stock_selection_prediction_latency_ms_bucket[5m])) by (le)) > 500
+      for: 5m
+      labels:
+        severity: warning
+        category: model
+      annotations:
+        summary: "High model prediction latency"
+        description: "95th percentile prediction latency for stock selection model is above 500ms for more than 5 minutes"
+
+    # Data Quality Alerts
+    - alert: DataCollectionFailures
+      expr: sum(increase(trading_system_trading_data_collection_failures_total[15m])) > 5
+      for: 15m
+      labels:
+        severity: warning
+        category: data
+      annotations:
+        summary: "Multiple data collection failures"
+        description: "More than 5 data collection failures in the last 15 minutes"
+
+    - alert: LowDataCompleteness
+      expr: trading_system_trading_data_quality_completeness{data_type=~"market_data|quote_data"} < 0.9
+      for: 15m
+      labels:
+        severity: warning
+        category: data
+      annotations:
+        summary: "Low data completeness"
+        description: "Data completeness for {{ $labels.data_type }} is below 90% for more than 15 minutes: {{ $value | humanizePercentage }}"
+
+    - alert: HighDataLatency
+      expr: trading_system_trading_data_quality_timeliness_ms{data_type=~"market_data|quote_data"} > 5000
+      for: 5m
+      labels:
+        severity: warning
+        category: data
+      annotations:
+        summary: "High data latency"
+        description: "Data timeliness for {{ $labels.data_type }} is above 5000ms for more than 5 minutes"
+
+    - alert: DataAnomaliesDetected
+      expr: sum(increase(trading_system_trading_data_anomalies_total[15m])) > 10
+      for: 15m
+      labels:
+        severity: warning
+        category: data
+      annotations:
+        summary: "Multiple data anomalies detected"
+        description: "More than 10 data anomalies detected in the last 15 minutes"
+
+  - name: circuit_breaker_alerts
+    rules:
+    # Circuit Breaker Alerts
+    - alert: CircuitBreakerTriggered
+      expr: trading_system_trading_circuit_breaker_triggered > 0
+      for: 1s
+      labels:
+        severity: critical
+        category: trading
+      annotations:
+        summary: "Circuit breaker triggered"
+        description: "Trading system circuit breaker has been triggered: {{ $labels.reason }}"
+
+    - alert: TradingHalted
+      expr: trading_system_trading_trading_halted > 0
+      for: 1m
+      labels:
+        severity: critical
+        category: trading
+      annotations:
+        summary: "Trading halted"
+        description: "Trading has been halted for more than 1 minute: {{ $labels.reason }}"
+
+    - alert: ExcessiveTradingVolume
+      expr: sum(rate(trading_system_trading_trade_volume_total[5m])) > 10000
+      for: 5m
+      labels:
+        severity: warning
+        category: trading
+      annotations:
+        summary: "Excessive trading volume"
+        description: "Trading volume exceeds $10,000 per minute for more than 5 minutes"
+
+    - alert: RapidPositionChange
+      expr: abs(delta(trading_system_trading_portfolio_total_value[5m])) / trading_system_trading_portfolio_total_value > 0.05
+      for: 5m
+      labels:
+        severity: warning
+        category: trading
+      annotations:
+        summary: "Rapid position change"
+        description: "Portfolio value has changed by more than 5% in 5 minutes"

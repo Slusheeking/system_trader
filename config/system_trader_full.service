@@ -1,0 +1,15 @@
+[Unit]
+Description=System Trader Full Service (Scheduler, Monitoring, and Services)
+After=network.target postgresql.service redis-server.service
+Wants=postgresql.service redis-server.service
+
+[Service]
+Type=forking
+User=ubuntu
+WorkingDirectory=/home/ubuntu/system_trader
+ExecStart=/home/ubuntu/system_trader/scripts/start_all_services.sh
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,27 @@
+[Unit]
+Description=System Trader Redis Server
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/system_trader
+ExecStart=/usr/bin/redis-server /home/ubuntu/system_trader/config/redis/redis.conf
+Restart=always
+RestartSec=10
+LimitNOFILE=65535
+
+# Performance tuning
+CPUSchedulingPolicy=fifo
+CPUSchedulingPriority=50
+IOSchedulingClass=realtime
+IOSchedulingPriority=0
+
+# Hardening
+PrivateTmp=true
+ProtectSystem=full
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

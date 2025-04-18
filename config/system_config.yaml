@@ -1,0 +1,304 @@
+api_credentials:
+  alpaca:
+    api_key_env: ALPACA_API_KEY
+    api_secret_env: ALPACA_API_SECRET
+  polygon:
+    api_key_env: POLYGON_API_KEY
+  unusual_whales:
+    api_key_env: UNUSUAL_WHALES_API_KEY
+  yahoo:
+    api_key_env: YAHOO_API_KEY
+backtesting:
+  benchmark_symbol: SPY
+  cache_backtest_data: true
+  commission_rate_bps: 5
+  data_resolution: 1min
+  default_end_date: '2023-01-01'
+  default_start_date: '2022-01-01'
+  include_extended_hours: false
+  initial_capital: 1000000
+  slippage_bps: 5
+  slippage_model: fixed_bps
+database:
+  connection_timeout: 30
+  host: localhost
+  name: trading_db
+  password_env: DB_PASSWORD
+  pool_size: 10
+  port: 5432
+  ssl_mode: require
+  tables:
+    market_data: market_data
+    metrics: metrics
+    orders: orders
+    portfolio: portfolio
+    positions: positions
+    signals: signals
+    trades: trades
+  timescale_extension: true
+  timescaledb:
+    dbname: timescaledb_test
+    host: localhost
+    max_connections: 10
+    max_retries: 3
+    max_retry_delay: 30
+    min_connections: 1
+    password: password
+    port: 5432
+    retry_delay: 1
+    schema: public
+    user: timescaleuser
+  type: postgresql
+  user: trading_user
+data_client_config:
+  type: alpaca
+  api_key_env: ALPACA_API_KEY
+  api_secret_env: ALPACA_API_SECRET
+  base_url: "https://api.alpaca.markets"
+  data_url: "https://data.alpaca.markets"
+  paper_trading: true
+  symbols: ["SPY", "AAPL", "MSFT", "GOOG"] # Added default symbols
+  rate_limit_rpm: 200
+  data_types:
+    trades:
+      enabled: true
+      collection_interval_seconds: 1
+      batch_size: 50
+      fields:
+        - price
+        - size
+        - exchange
+        - timestamp
+    quotes:
+      enabled: true
+      collection_interval_seconds: 1
+      batch_size: 50
+      fields:
+        - bid_price
+        - bid_size
+        - ask_price
+        - ask_size
+        - timestamp
+    bars:
+      enabled: true
+      collection_interval_seconds: 60
+      batch_size: 100
+      fields:
+        - open
+        - high
+        - low
+        - close
+        - volume
+        - timestamp
+      timeframe: "1Min"
+    account:
+      enabled: true
+      collection_interval_seconds: 60
+      fields:
+        - equity
+        - buying_power
+        - cash
+        - portfolio_value
+    positions:
+      enabled: true
+      collection_interval_seconds: 30
+      fields:
+        - symbol
+        - qty
+        - avg_entry_price
+        - market_value
+        - unrealized_pl
+    orders:
+      enabled: true
+      collection_interval_seconds: 10
+      fields:
+        - id
+        - symbol
+        - side
+        - type
+        - qty
+        - status
+        - filled_qty
+        - filled_avg_price
+  websocket:
+    enabled: true
+    channels:
+      - trades
+      - quotes
+      - bars
+    reconnect_interval_seconds: 30
+    heartbeat_interval_seconds: 30
+hardware:
+  gpu_memory_fraction: 0.8
+  model_acceleration: onnx
+  num_threads: 16
+  optimize_for_inference: true
+  pinned_memory: true
+  target_processor: gh200_arm64
+  use_gpu: true
+logging:
+  categories:
+    data:
+      file: data.log
+      level: INFO
+    default:
+      file: system_trader.log
+      level: INFO
+    model:
+      file: model.log
+      level: INFO
+    system:
+      file: system.log
+      level: INFO
+    trading:
+      file: trading.log
+      level: INFO
+  central_file: true
+  central_log_level: WARNING
+  component_files: true
+  console: true
+  level: INFO
+  retention:
+    archive_after_days: 30
+    compress_after_days: 7
+    days: 30
+  structured: true
+mlflow:
+  experiment_prefix: trading_
+  model_registry_prefix: trading_
+  registry_uri: http://localhost:5000
+  tracking_uri: http://localhost:5000
+models:
+  entry_timing:
+    batch_size: 10
+    cache_predictions: true
+    confidence_threshold: 0.7
+    lookback_periods: 20
+    update_interval_seconds: 300
+  market_regime:
+    batch_size: 1
+    cache_predictions: true
+    lookback_periods: 60
+    regime_types:
+    - bullish
+    - bearish
+    - neutral
+    - volatile
+    update_interval_seconds: 1800
+  peak_detection:
+    batch_size: 10
+    cache_predictions: true
+    confidence_threshold: 0.68
+    lookback_periods: 30
+    update_interval_seconds: 180
+  risk_sizing:
+    batch_size: 20
+    cache_predictions: true
+    max_position_size_pct: 0.05
+    min_position_size_pct: 0.01
+    update_interval_seconds: 600
+  stock_selection:
+    batch_size: 50
+    cache_predictions: true
+    confidence_threshold: 0.65
+    max_symbols_to_track: 200
+    update_interval_seconds: 3600
+monitoring:
+  alerting:
+    email_recipients:
+    - alerts@tradingsystem.com
+    enabled: true
+    pagerduty_key_env: PAGERDUTY_SERVICE_KEY
+    slack_webhook_env: SLACK_WEBHOOK_URL
+  grafana:
+    base_url: http://localhost:3000
+    dashboards:
+    - portfolio
+    - models
+    - system
+    - data
+    enabled: true
+  prometheus:
+    enabled: true
+    exporters:
+      model:
+        enabled: true
+        interval: 30
+        port: 9003
+      system:
+        enabled: true
+        interval: 15
+        port: 9001
+      trading:
+        enabled: true
+        interval: 5
+        port: 9002
+rate_limits:
+  alpaca: 200
+  polygon: 200
+  unusual_whales: 60
+  yahoo: 100
+redis:
+  database: 0
+  host: localhost
+  max_connections: 20
+  password_env: REDIS_PASSWORD
+  port: 6379
+  ssl: true
+  timeout: 5
+  ttl:
+    market_data: 3600
+    orders: 30
+    portfolio: 60
+    predictions: 300
+    signals: 900
+risk_management:
+  circuit_breakers:
+    enable: true
+    triggers:
+      consecutive_losses: 10
+      daily_loss_pct: 0.05
+      data_quality_threshold: 0.8
+      excess_drawdown_pct: 0.1
+      execution_failure_rate: 0.25
+      model_confidence_threshold: 0.4
+  position_sizing:
+    adjust_for_correlation: true
+    adjust_for_volatility: true
+    max_pct_portfolio: 0.05
+    risk_per_trade_pct: 0.002
+  stop_loss:
+    default_pct: 0.02
+    enable: true
+    trailing: true
+    trailing_distance_pct: 0.01
+  take_profit:
+    default_pct: 0.03
+    enable: true
+    trailing: false
+system:
+  enable_circuit_breakers: true
+  market_hours:
+    end: '16:00'
+    start: 09:30
+  market_timezone: America/New_York
+  max_workers: 16
+  name: Autonomous Day Trading System
+  timezone: UTC
+  version: 1.0.0
+trading:
+  drawdown_threshold: -0.2
+  execution:
+    default_order_type: limit
+    enable_fractional_shares: true
+    limit_distance_bps: 2
+    market_slippage_bps: 5
+    stop_distance_bps: 10
+    time_in_force: day
+  initial_capital: 1000000
+  leverage_limit: 1.5
+  max_position_size_pct: 0.1
+  max_positions: 20
+  max_single_order_value: 50000
+  min_trade_interval_seconds: 30
+  portfolio_risk_target: 0.12

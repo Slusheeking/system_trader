@@ -1,0 +1,20 @@
+[Unit]
+Description=System Trader Monitoring Services
+After=docker.service network.target
+Requires=docker.service
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/system_trader
+ExecStart=/home/ubuntu/system_trader/scripts/start_monitoring_services.sh
+ExecStop=/usr/bin/docker-compose -f docker-compose.monitoring.yml down
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=system_trader_monitoring
+
+[Install]
+WantedBy=multi-user.target

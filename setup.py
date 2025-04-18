@@ -1,34 +1,28 @@
 from setuptools import setup, find_packages
+from pathlib import Path
 
-with open("README.md", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
+# Project root directory
+here = Path(__file__).parent.resolve()
 
-with open("requirements.txt", "r", encoding="utf-8") as f:
-    requirements = f.read().splitlines()
+# Read dependencies from requirements.txt
+with open(here / 'requirements.txt', encoding='utf-8') as f:
+    install_requires = [
+        line.strip()
+        for line in f
+        if line.strip() and not line.startswith('#')
+    ]
 
 setup(
-    name="system_trader",
-    version="0.1.0",
-    author="",
-    author_email="",
-    description="An autonomous algorithmic trading system",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/slusheeking/system_trader",
+    name='system-trader',
+    version='0.1.0',
+    description='Autonomous day trading system',
+    author='Your Name',
+    license='MIT',
     packages=find_packages(),
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-        "Development Status :: 3 - Alpha",
-        "Intended Audience :: Financial and Insurance Industry",
-        "Topic :: Office/Business :: Financial :: Investment",
-    ],
-    python_requires=">=3.8",
-    install_requires=requirements,
+    install_requires=install_requires,
     entry_points={
-        "console_scripts": [
-            "system_trader=system_trader.cli:main",
+        'console_scripts': [
+            'system-trader=main:main',
         ],
     },
 )

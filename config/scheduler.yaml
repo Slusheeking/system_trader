@@ -1,0 +1,93 @@
+# Trading System Scheduler Configuration
+# This file defines the scheduling of various system tasks
+
+worker_pool:
+  max_workers: 8  # Maximum number of concurrent worker threads
+
+scheduler:
+  check_interval: 5  # Seconds between scheduler checks
+
+tasks:
+  # Training task configuration
+  training_task:
+    frequency: 'weekly'
+    time: '20:00'  # 8:00 PM, typically on weekends
+    days: ['saturday']
+    
+  # Backtesting task configuration
+  backtesting_task:
+    backtesting:
+      schedule:
+        frequency: 'daily'
+        time: '20:30'  # 8:30 PM, after market close
+      params:
+        lookback_days: 30
+        symbols: ['SPY', 'QQQ', 'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META', 'TSLA', 'NVDA', 'AMD']
+        strategies: ['momentum', 'mean_reversion', 'trend_following', 'breakout']
+        
+  # Data collection task configuration
+  data_collection_task:
+    schedule:
+      # Continuous data collection during market hours
+      frequency: 'minutes'
+      interval: 1  # Every minute during market hours
+      time: ':00'
+    params:
+      sources: ['alpaca', 'yahoo', 'polygon', 'unusual_whales']
+      asset_types: ['stocks', 'etfs', 'options', 'futures']
+      
+  # Market analysis task configuration
+  market_analysis_task:
+    schedule:
+      frequency: 'daily'
+      time: '05:30'  # 5:30 AM, before market open
+    params:
+      regime_analysis: true
+      correlation_matrix: true
+      volatility_surface: true
+      sector_rotation: true
+      breadth_analysis: true
+      sentiment_analysis: true
+      
+  # Notification task configuration
+  notification_task:
+    schedule:
+      critical_alerts: true
+      status_notifications:
+        pre_market: true
+        market_hours: true
+        post_market: true
+      delivery_methods:
+        email: true
+        slack: true
+        dashboard: true
+        mobile: true
+      
+      # Notification customization by role
+      roles:
+        system_administrator:
+          - technical_system_alerts
+          - infrastructure_performance
+          - security_alerts
+          - api_status
+        
+        trading_manager:
+          - trading_activity
+          - strategy_performance
+          - risk_thresholds
+          - pnl_reporting
+          - regime_changes
+        
+        risk_manager:
+          - risk_management_alerts
+          - exposure_metrics
+          - drawdown_notifications
+          - correlation_warnings
+          - volatility_spikes
+        
+        data_scientist:
+          - model_performance
+          - feature_importance
+          - data_quality
+          - retraining_triggers
+          - backtest_results

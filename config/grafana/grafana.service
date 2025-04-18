@@ -1,0 +1,34 @@
+[Unit]
+Description=Grafana instance
+Documentation=http://docs.grafana.org
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=grafana
+Group=grafana
+Type=simple
+Restart=on-failure
+WorkingDirectory=/usr/share/grafana
+ExecStart=/usr/sbin/grafana-server \
+          --config=/etc/grafana/grafana.ini \
+          --pidfile=/var/run/grafana/grafana-server.pid \
+          --packaging=deb \
+          cfg:default.paths.logs=/var/log/grafana \
+          cfg:default.paths.data=/var/lib/grafana \
+          cfg:default.paths.plugins=/var/lib/grafana/plugins \
+          cfg:default.paths.provisioning=/etc/grafana/provisioning
+
+# Hardening options
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+MemoryDenyWriteExecute=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,23 @@
+[Unit]
+Description=System Trader TimescaleDB Service
+After=postgresql.service
+Wants=postgresql.service
+BindsTo=postgresql.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/system_trader
+# Setup tables after PostgreSQL is running
+ExecStart=/usr/bin/psql -U postgres -f /home/ubuntu/system_trader/db_setup.sql
+# Mark as successful once run
+RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+
+# Hardening
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

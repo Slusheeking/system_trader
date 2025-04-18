@@ -1,0 +1,13 @@
+# Strategy configuration parameters
+# Paths can be absolute or relative to project root
+model_path: "models/market_regime/model.pkl"
+
+# Risk management parameters
+stop_loss: 0.02        # 2% stop loss
+take_profit: 0.05      # 5% take profit
+max_position_size: 100000  # Maximum position size in base currency units
+
+# Signal generation thresholds
+theta_thresholds:
+  buy: 0.6             # Minimum model score to enter long
+  sell: 0.4            # Maximum model score to enter short

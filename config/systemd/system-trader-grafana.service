@@ -1,0 +1,22 @@
+[Unit]
+Description=Grafana instance
+Documentation=http://docs.grafana.org
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+Type=simple
+Restart=on-failure
+WorkingDirectory=/home/ubuntu/system_trader
+ExecStart=/usr/sbin/grafana-server \
+          --config=/home/ubuntu/system_trader/config/grafana/grafana.ini \
+          --homepath=/usr/share/grafana \
+          cfg:default.paths.logs=/home/ubuntu/system_trader/logs/grafana \
+          cfg:default.paths.data=/home/ubuntu/system_trader/data/grafana \
+          cfg:default.paths.plugins=/home/ubuntu/system_trader/data/grafana/plugins \
+          cfg:default.paths.provisioning=/home/ubuntu/system_trader/config/grafana/provisioning
+
+[Install]
+WantedBy=multi-user.target

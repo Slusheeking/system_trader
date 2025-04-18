@@ -1,0 +1,19 @@
+[Unit]
+Description=System Trader Monitoring
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/system_trader
+Environment="PYTHONPATH=/usr/local/lib/python3.10/dist-packages:/home/ubuntu/system_trader"
+ExecStart=/usr/bin/python3 run.py monitor --no-services
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

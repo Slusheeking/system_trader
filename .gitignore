@@ -48,6 +48,7 @@ data/processed/
 # Logs
 logs/
 *.log
+mlflow/logs/
 
 # Model files
 *.model
@@ -55,13 +56,47 @@ logs/
 *.pkl
 models/saved/
 !models/sample/
+mlruns/
+training_results/
 
 # Configuration with sensitive information
 config/secrets.yaml
 config/credentials.json
+config/api_credentials.yaml
 *_key.json
 *_secret.json
 
 # Trading specific
 backtest_results/
 performance_reports/
+results/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+feature_store_data/feature_metadata.db
+feature_store_data/feature_data/
+
+# Generated files
+*.png
+*.jpg
+*.jpeg
+*.gif
+test_*.txt
+!requirements.txt
+
+# Docker
+.dockerignore
+
+# External repositories
+finbert/
+
+# Prometheus data
+data/prometheus/wal/
+data/prometheus/chunks_head/
+data/prometheus/**/chunks/
+data/prometheus/**/index
+data/prometheus/**/tombstones
+data/prometheus/lock
+data/prometheus/queries.active

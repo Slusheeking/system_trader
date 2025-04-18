@@ -1,0 +1,55 @@
+apiVersion: 1
+
+providers:
+  # <string> provider name
+  - name: 'default'
+    # <int> org id. will default to orgId 1 if not specified
+    orgId: 1
+    # <string, required> name of the dashboard folder. Required
+    folder: ''
+    # <string> folder UID. will be automatically generated if not specified
+    folderUid: ''
+    # <string, required> provider type. Required
+    type: file
+    # <bool> disable dashboard deletion
+    disableDeletion: false
+    # <bool> enable dashboard editing
+    editable: true
+    # <int> how often Grafana will scan for changed dashboards
+    updateIntervalSeconds: 10
+    # <bool> allow updating provisioned dashboards from the UI
+    allowUiUpdates: true
+    options:
+      # <string required> path to dashboard files on disk. Required
+      path: /home/ubuntu/system_trader/config/grafana/provisioning/dashboards
+      # <bool> use folder names from filesystem to create folders in Grafana
+      foldersFromFilesStructure: true
+
+    # Dashboard JSON files to provision
+    dashboards:
+      - name: 'Portfolio Dashboard'
+        path: /home/ubuntu/system_trader/monitoring/grafana/portfolio_dashboard.json
+        # <string> dashboard id in Grafana
+        uid: portfolio
+        # <bool> disable dashboard deletion
+        disableDeletion: false
+        # <bool> enable dashboard editing
+        editable: true
+        
+      - name: 'Model Performance Dashboard'
+        path: /home/ubuntu/system_trader/monitoring/grafana/model_performance_dashboard.json
+        uid: models
+        disableDeletion: false
+        editable: true
+        
+      - name: 'System Health Dashboard'
+        path: /home/ubuntu/system_trader/monitoring/grafana/system_health_dashboard.json
+        uid: system
+        disableDeletion: false
+        editable: true
+        
+      - name: 'Data Quality Dashboard'
+        path: /home/ubuntu/system_trader/monitoring/grafana/data_quality_dashboard.json
+        uid: data
+        disableDeletion: false
+        editable: true

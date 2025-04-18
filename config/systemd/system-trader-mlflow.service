@@ -1,0 +1,19 @@
+[Unit]
+Description=MLflow Tracking Server
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/system_trader
+Environment="PYTHONPATH=/usr/local/lib/python3.10/dist-packages"
+ExecStart=/usr/bin/python3 /home/ubuntu/system_trader/start_mlflow_server.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
